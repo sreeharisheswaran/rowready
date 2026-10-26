@@ -81,7 +81,7 @@ export default function Upload({ onUpload, pending, onError }) {
           {pending ? <span className="spinner" /> : <Icon name="upload" size={17} />}
           {pending ? 'Analyzing…' : 'Choose CSV file'}
         </button>
-        <span className="dropzone-limits">UTF-8 · Up to 2 MiB · 10,000 rows · 100 columns</span>
+        <span className="dropzone-limits">UTF-8 / UTF-16 / ANSI · Up to 2 MiB · 10,000 rows · 100 columns</span>
       </div>
       <div className="sample-row">
         <span>Just exploring?</span>

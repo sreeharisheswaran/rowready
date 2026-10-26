@@ -31,6 +31,41 @@ test('quoted commas, escaped quotes, multiline fields, BOM and CRLF are parsed',
   });
 });
 
+test('UTF-16 LE/BE, Windows-1252, semicolon and tab CSV formats are supported', () => {
+  // UTF-16 LE with BOM
+  const utf16le = Buffer.concat([
+    Buffer.from([0xff, 0xfe]),
+    Buffer.from('city,population\r\nTokyo,37400000\r\nDelhi,29300000\r\n', 'utf16le'),
+  ]);
+  const parsedLe = parseCsv(utf16le);
+  assert.deepEqual(parsedLe.headers, ['city', 'population']);
+  assert.equal(parsedLe.rows.length, 2);
+
+  // UTF-16 BE with BOM
+  const bePayload = Buffer.from('city,population\r\nTokyo,37400000\r\n', 'utf16le');
+  bePayload.swap16();
+  const utf16be = Buffer.concat([Buffer.from([0xfe, 0xff]), bePayload]);
+  const parsedBe = parseCsv(utf16be);
+  assert.deepEqual(parsedBe.headers, ['city', 'population']);
+  assert.equal(parsedBe.rows.length, 1);
+
+  // Windows-1252 / ISO-8859-1 with accented characters
+  const latin1 = Buffer.from('name,city\r\nRen\xe9,Montr\xe9al\r\n', 'binary');
+  const parsedLatin1 = parseCsv(latin1);
+  assert.deepEqual(parsedLatin1.headers, ['name', 'city']);
+  assert.deepEqual(parsedLatin1.rows, [['René', 'Montréal']]);
+
+  // Semicolon-delimited CSV (European Excel style)
+  const semi = parse('name;score;status\r\nAlice;95;active\r\nBob;80;pending\r\n');
+  assert.deepEqual(semi.headers, ['name', 'score', 'status']);
+  assert.equal(semi.rows.length, 2);
+
+  // Tab-delimited CSV (TSV)
+  const tsv = parse('id\tname\tage\r\n1\tCharlie\t32\r\n');
+  assert.deepEqual(tsv.headers, ['id', 'name', 'age']);
+  assert.equal(tsv.rows.length, 1);
+});
+
 test('missing cells include whitespace but exclude literal NA, null, and zero', () => {
   const profile = profileDataset(parse('a,b,c\n, ,NA\nnull,0,""'));
   assert.equal(profile.missingCells, 3);

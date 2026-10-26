@@ -6,7 +6,7 @@ RowReady helps students, developers, analysts, and small businesses understand a
 
 ## What you can do
 
-- Upload UTF-8 CSV, including quoted commas, escaped quotes, and multiline values.
+- Upload CSV files in UTF-8, UTF-16 (LE/BE), and Windows-1252 / ANSI encodings, including quoted fields, escaped quotes, multiline values, and standard delimiters (comma, semicolon, tab).
 - Inspect actual row/column counts, missing percentages, duplicate counts, inferred column types, distinct counts, and numeric min/max/mean.
 - Trim surrounding whitespace and remove exact duplicate rows. See counts and original/working previews; reset to the original at any point in the current session.
 - Revalidate and save the current findings, with remaining warnings clearly visible.
@@ -111,7 +111,7 @@ render.yaml                      Single Node service blueprint
 
 ## Exact data rules
 
-**CSV structure:** comma-delimited, UTF-8 (optional BOM), one header record and at least one data record. LF, CRLF, and CR line endings are accepted. Every record must have the header’s cell count. Blank physical records are records, so they can cause an inconsistent-row error; they are not silently skipped. A final record separator adds no row. Quotes must enclose an entire field; embedded quotes use `""`. Whitespace after a closing quote is rejected. Tabs and line breaks inside values are supported; other ASCII control characters are rejected. No delimiter or encoding guessing, Excel, or compressed uploads.
+**CSV structure:** comma, semicolon, or tab-delimited; UTF-8, UTF-16 (LE/BE, with or without BOM), or Windows-1252/ANSI encodings; one header record and at least one data record. LF, CRLF, and CR line endings are accepted. Every record must have the header’s cell count. Blank physical records are records, so they can cause an inconsistent-row error; they are not silently skipped. A final record separator adds no row. Quotes must enclose an entire field; embedded quotes use `""`. Whitespace after a closing quote is rejected. Tabs and line breaks inside values are supported; binary nulls and ASCII control characters are rejected.
 
 **Headers:** nonblank and unique after ignoring surrounding whitespace, case-sensitive; at most 128 characters each. Header text is preserved, with a warning for surrounding whitespace. `Name` and `name` are distinct. CSV formula protection also applies to headers at export.
 
