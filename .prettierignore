@@ -1,0 +1,7 @@
+END_TERM_PROJECT_GUIDELINES.md
+package-lock.json
+node_modules/
+client/dist/
+.local/
+.npm-cache/
+test-results/

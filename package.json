@@ -1,0 +1,44 @@
+{
+  "name": "rowready",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A CSV data quality workbench with browser-held datasets and shared MongoDB reports.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:server": "node --watch server/src/index.js",
+    "dev:client": "vite --config client/vite.config.js --configLoader native",
+    "build": "vite build --config client/vite.config.js --configLoader native",
+    "start": "node server/src/index.js",
+    "test": "node --test --test-isolation=none tests/*.test.js",
+    "test:db": "node --test --test-isolation=none tests/integration/*.test.js",
+    "test:e2e": "node scripts/e2e.js",
+    "test:ui": "node scripts/test-ui.js",
+    "check": "node scripts/check.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "d3-dsv": "3.0.1",
+    "dotenv": "16.6.1",
+    "express": "5.2.1",
+    "express-rate-limit": "8.7.0",
+    "helmet": "8.3.0",
+    "mongoose": "8.24.7",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/react": "16.3.3",
+    "@vitejs/plugin-react": "6.1.2",
+    "jsdom": "25.0.1",
+    "prettier": "3.9.9",
+    "supertest": "7.3.1",
+    "vite": "8.3.4"
+  }
+}
