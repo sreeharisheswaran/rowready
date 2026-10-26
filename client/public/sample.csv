@@ -1,0 +1,11 @@
+id,name,email,city,score,active,notes
+001, Asha Rao ,asha@example.com,Pune,82,true, First visit 
+002,Neel Shah,neel@example.com,"Mumbai, MH",91,true,"Said ""hello"""
+003,Mira Sen,,Kolkata,76,false,Needs email
+002,Neel Shah,neel@example.com,"Mumbai, MH",91,true,"Said ""hello"""
+004,Dev Iyer,dev@example.com,Chennai,88,true,=2+3
+001,Asha Rao,asha@example.com,Pune,82,true,First visit
+005, Leena Das,leena@example.com,  ,69,false, Check city 
+006,Omar Ali,omar@example.com,Delhi,NA,true,Score pending
+007,Tara Roy,tara@example.com,Bengaluru,95,true,"Two lines:
+follow up"
