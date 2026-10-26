@@ -8,6 +8,7 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "db": "node scripts/db.js",
     "dev": "node scripts/dev.js",
     "dev:server": "node --watch server/src/index.js",
     "dev:client": "vite --config client/vite.config.js --configLoader native",

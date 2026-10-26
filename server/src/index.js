@@ -39,8 +39,10 @@ const server = createApp({ trustProxy: config.trustProxy, production: config.pro
 );
 server.requestTimeout = 30000;
 server.headersTimeout = 15000;
-server.on('error', () => {
-  console.error('The server could not start. Check PORT and whether another process is using it.');
+server.on('error', (error) => {
+  console.error(
+    `The server could not start: ${error.code || error.message}. Check PORT ${config.port} and whether another process is using it.`,
+  );
   process.exit(1);
 });
 
