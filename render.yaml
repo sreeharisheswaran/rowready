@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: rowready
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.13.1
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: '1'
+      - key: MONGODB_URI
+        sync: false
