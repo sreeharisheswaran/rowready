@@ -9,14 +9,20 @@ const signupSchema = z
   .object({
     name: z.string().trim().min(2, 'Name must be at least 2 characters').max(60),
     email: z.string().trim().email('Invalid email address').toLowerCase().max(120),
-    password: z.string().min(6, 'Password must be at least 6 characters').max(100),
+    password: z
+      .string()
+      .min(6, 'Password must be at least 6 characters')
+      .max(72, 'Password cannot exceed 72 characters'),
   })
   .strict();
 
 const loginSchema = z
   .object({
     email: z.string().trim().email('Invalid email address').toLowerCase().max(120),
-    password: z.string().min(1, 'Password is required').max(100),
+    password: z
+      .string()
+      .min(1, 'Password is required')
+      .max(72, 'Password cannot exceed 72 characters'),
   })
   .strict();
 

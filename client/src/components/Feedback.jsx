@@ -30,7 +30,7 @@ export function Empty({ title, children, icon = 'file' }) {
         <Icon name={icon} size={28} />
       </span>
       <h3>{title}</h3>
-      <p>{children}</p>
+      <div className="empty-text">{children}</div>
     </div>
   );
 }

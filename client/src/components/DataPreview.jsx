@@ -60,7 +60,7 @@ export default function DataPreview({
       </div>
       <div className="table-foot">
         <span className="legend-dot" />
-        Amber cells are missing. Surrounding whitespace is preserved in this preview.
+        Shaded cells are missing. Surrounding whitespace is preserved in this preview.
       </div>
     </section>
   );

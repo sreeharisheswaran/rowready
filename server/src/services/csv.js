@@ -13,14 +13,22 @@ export function decodeCsvBytes(bytes) {
     try {
       return new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(3));
     } catch {
-      throw new AppError(400, 'INVALID_ENCODING', 'The UTF-8 file contains invalid byte sequences.');
+      throw new AppError(
+        400,
+        'INVALID_ENCODING',
+        'The UTF-8 file contains invalid byte sequences.',
+      );
     }
   }
 
   if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
     const payload = bytes.subarray(2);
     if (payload.length % 2 !== 0) {
-      throw new AppError(400, 'INVALID_ENCODING', 'Invalid UTF-16 encoding: unexpected byte length.');
+      throw new AppError(
+        400,
+        'INVALID_ENCODING',
+        'Invalid UTF-16 encoding: unexpected byte length.',
+      );
     }
     try {
       return new TextDecoder('utf-16le', { fatal: true }).decode(payload);
@@ -32,7 +40,11 @@ export function decodeCsvBytes(bytes) {
   if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
     const payload = bytes.subarray(2);
     if (payload.length % 2 !== 0) {
-      throw new AppError(400, 'INVALID_ENCODING', 'Invalid UTF-16 encoding: unexpected byte length.');
+      throw new AppError(
+        400,
+        'INVALID_ENCODING',
+        'Invalid UTF-16 encoding: unexpected byte length.',
+      );
     }
     try {
       return new TextDecoder('utf-16be', { fatal: true }).decode(payload);
@@ -41,15 +53,8 @@ export function decodeCsvBytes(bytes) {
     }
   }
 
-  // 2. Try standard UTF-8
-  try {
-    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-  } catch {
-    // Fall through to other encodings
-  }
-
-  // 3. UTF-16 without BOM (check for alternating null bytes)
-  if (bytes.length >= 4 && bytes.length % 2 === 0) {
+  // 2. UTF-16 without BOM (check for alternating null bytes across at least 4 characters)
+  if (bytes.length >= 8 && bytes.length % 2 === 0) {
     let evenZeros = 0;
     let oddZeros = 0;
     const sampleLimit = Math.min(bytes.length, 512);
@@ -57,15 +62,22 @@ export function decodeCsvBytes(bytes) {
       if (bytes[i] === 0x00) evenZeros += 1;
       if (bytes[i + 1] === 0x00) oddZeros += 1;
     }
-    if (oddZeros > sampleLimit / 8 && oddZeros > evenZeros * 2) {
+    if (oddZeros >= sampleLimit / 4 && oddZeros > evenZeros * 2) {
       try {
         return new TextDecoder('utf-16le', { fatal: true }).decode(bytes);
       } catch {}
-    } else if (evenZeros > sampleLimit / 8 && evenZeros > oddZeros * 2) {
+    } else if (evenZeros >= sampleLimit / 4 && evenZeros > oddZeros * 2) {
       try {
         return new TextDecoder('utf-16be', { fatal: true }).decode(bytes);
       } catch {}
     }
+  }
+
+  // 3. Try standard UTF-8
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    // Fall through to other encodings
   }
 
   // 4. Reject binary null bytes
@@ -166,9 +178,23 @@ export function parseCsv(bytes) {
       'The CSV is empty. Include a header and at least one data row.',
     );
 
-  const firstLineEnd = text.search(/[\r\n]/);
-  const firstLine = firstLineEnd === -1 ? text : text.slice(0, firstLineEnd);
-  const delimiter = detectDelimiter(firstLine);
+  let inQuotes = false;
+  let firstRecordEnd = text.length;
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    if (char === '"') {
+      if (inQuotes && text[i + 1] === '"') {
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (!inQuotes && (char === '\n' || char === '\r')) {
+      firstRecordEnd = i;
+      break;
+    }
+  }
+  const firstRecord = text.slice(0, firstRecordEnd);
+  const delimiter = detectDelimiter(firstRecord);
 
   checkQuoting(text, delimiter);
   const parser = dsvFormat(delimiter);
@@ -193,7 +219,7 @@ export function parseCsv(bytes) {
       'NO_DATA_ROWS',
       'The CSV has no data rows. Include a header followed by at least one record.',
     );
-  const seen = new Set();
+  const seen = new Set(records[0].map((h) => h.trim()).filter((h) => h.length > 0));
   const headers = records[0].map((header, index) => {
     const trimmed = header.trim();
     if (trimmed.length === 0) {
@@ -206,7 +232,6 @@ export function parseCsv(bytes) {
       seen.add(name);
       return name;
     }
-    seen.add(trimmed);
     return header;
   });
   return validateDataset({ headers, rows: records.slice(1) });

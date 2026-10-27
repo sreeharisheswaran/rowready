@@ -35,14 +35,14 @@ export function Reports({ navigate, user, onOpenAuth }) {
       <div className="page">
         <header className="page-heading">
           <div>
-            <span className="eyebrow">A RECORD OF WHAT YOU FOUND</span>
             <h1>Saved reports</h1>
             <p>Your analysis and latest validation findings, ready to revisit.</p>
           </div>
         </header>
         <section className="panel">
           <Empty icon="shield" title="Sign in to view saved reports">
-            Please sign in to access your saved reports. When you are signed out, your workspace and reports remain private.
+            Please sign in to access your saved reports. When you are signed out, your workspace and
+            reports remain private.
             <div style={{ marginTop: 20 }}>
               <button type="button" className="button primary" onClick={onOpenAuth}>
                 Sign in to your account
@@ -58,7 +58,6 @@ export function Reports({ navigate, user, onOpenAuth }) {
     <div className="page">
       <header className="page-heading">
         <div>
-          <span className="eyebrow">A RECORD OF WHAT YOU FOUND</span>
           <h1>Saved reports</h1>
           <p>Your analysis and latest validation findings, ready to revisit.</p>
         </div>
@@ -256,14 +255,15 @@ export function ReportDetail({ id, navigate, user, onOpenAuth }) {
         </button>
         <header className="page-heading">
           <div>
-            <span className="eyebrow">SAVED REPORT</span>
+            <span className="eyebrow">Saved report</span>
             <h1 className="filename-heading">Report details</h1>
             <p>Analysis and saved validation information</p>
           </div>
         </header>
         <section className="panel">
           <Empty icon="shield" title="Sign in to view report details">
-            Please sign in to inspect this report. Report details are private to authenticated users.
+            Please sign in to inspect this report. Report details are private to authenticated
+            users.
             <div style={{ marginTop: 20 }}>
               <button type="button" className="button primary" onClick={onOpenAuth}>
                 Sign in to your account
@@ -287,7 +287,7 @@ export function ReportDetail({ id, navigate, user, onOpenAuth }) {
       </button>
       <header className="page-heading">
         <div>
-          <span className="eyebrow">SAVED REPORT</span>
+          <span className="eyebrow">Saved report</span>
           <h1 className="filename-heading">{report?.filename || 'Report details'}</h1>
           <p>
             {report

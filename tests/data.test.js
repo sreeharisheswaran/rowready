@@ -201,10 +201,9 @@ test('header and structural limits also apply to client-supplied datasets', () =
     () =>
       validateDataset({
         headers: ['a'],
-        rows: Array.from(
-          { length: Math.ceil((LIMITS.datasetBytes + 1000) / 12000) },
-          () => ['x'.repeat(12000)],
-        ),
+        rows: Array.from({ length: Math.ceil((LIMITS.datasetBytes + 1000) / 12000) }, () => [
+          'x'.repeat(12000),
+        ]),
       }),
     { code: 'DATASET_TOO_LARGE' },
   );

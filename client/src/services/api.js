@@ -1,7 +1,7 @@
 async function send(path, options = {}) {
   const timeout = AbortSignal.timeout(30000);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
-  const token = localStorage.getItem('rowready_token');
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('rowready_token') : null;
   const headers = { ...options.headers };
   if (token && !headers['Authorization']) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -19,9 +19,12 @@ async function send(path, options = {}) {
   }
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new Error(
+    const error = new Error(
       body?.error?.message || `Request failed (${response.status}). Please try again.`,
     );
+    error.status = response.status;
+    error.code = body?.error?.code;
+    throw error;
   }
   return response;
 }
@@ -51,7 +54,9 @@ export const api = {
   validate: (dataset, reportId, editToken) =>
     jsonPost('/datasets/validate', { dataset, reportId, editToken }),
   reports: async (offset = 0, signal, mine = false) =>
-    (await send(`/reports?limit=12&offset=${offset}${mine ? '&mine=true' : ''}`, { signal })).json(),
+    (
+      await send(`/reports?limit=12&offset=${offset}${mine ? '&mine=true' : ''}`, { signal })
+    ).json(),
   report: async (id, signal) =>
     (await send(`/reports/${encodeURIComponent(id)}`, { signal })).json(),
   export: async (dataset) => {

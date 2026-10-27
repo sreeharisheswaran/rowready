@@ -20,7 +20,6 @@ function GettingStarted() {
   ];
   return (
     <aside className="getting-started">
-      <span className="eyebrow">A LITTLE ORDER. A LOT OF CLARITY.</span>
       <h2>
         From messy rows
         <br />
@@ -58,7 +57,7 @@ function CleanPanel({ work }) {
       <section className="panel">
         <div className="panel-heading">
           <div>
-            <h2>A small cleanup. A clear difference.</h2>
+            <h2>Choose what to clean</h2>
             <p>Choose the changes to apply to your current working data.</p>
           </div>
           <Icon name="clean" />
@@ -206,7 +205,7 @@ function ValidationPanel({ work }) {
           <span className="export-icon">
             <Icon name="download" size={29} />
           </span>
-          <h2>Ready for the next step.</h2>
+          <h2>Export your cleaned data</h2>
           <p>
             Download your actual working data, with correctly escaped commas, quotes, and line
             breaks.
@@ -257,7 +256,6 @@ export default function Workbench({ work, navigate }) {
     <div className="page">
       <header className="page-heading">
         <div>
-          <span className="eyebrow">YOUR DATA, WITH A LITTLE MORE CERTAINTY</span>
           <h1>{session ? 'A clearer picture of your data.' : 'Good data starts here.'}</h1>
           <p>
             {session
@@ -300,7 +298,7 @@ export default function Workbench({ work, navigate }) {
           </div>
           <section className="history-callout">
             <div>
-              <h3>Your findings, kept for later.</h3>
+              <h3>Saved reports</h3>
               <p>
                 Revisit saved analysis and validation reports, even after the dataset session ends.
               </p>

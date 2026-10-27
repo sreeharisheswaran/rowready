@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { AppError } from './errors.js';
+import { config } from '../config.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rowready-jwt-secret-key-development-2026';
+const JWT_SECRET = config.jwtSecret;
 
 export function signToken(user) {
   return jwt.sign(
@@ -19,7 +20,11 @@ export function verifyToken(token) {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch {
-    throw new AppError(401, 'INVALID_TOKEN', 'Session expired or invalid token. Please log in again.');
+    throw new AppError(
+      401,
+      'INVALID_TOKEN',
+      'Session expired or invalid token. Please log in again.',
+    );
   }
 }
 
@@ -32,10 +37,10 @@ export function optionalAuth(req, res, next) {
   const token = header.slice(7).trim();
   try {
     req.user = verifyToken(token);
-  } catch {
-    req.user = null;
+    next();
+  } catch (err) {
+    next(err);
   }
-  next();
 }
 
 export function requireAuth(req, res, next) {

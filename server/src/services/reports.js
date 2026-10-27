@@ -15,8 +15,6 @@ export function publicReport(document) {
     original: object.original,
     lastValidation: object.lastValidation,
     userId: object.userId ? String(object.userId) : null,
-    userEmail: object.userEmail || null,
-    userName: object.userName || null,
     createdAt: object.createdAt,
     updatedAt: object.updatedAt,
   };

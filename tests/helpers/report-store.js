@@ -20,8 +20,11 @@ export function memoryReportStore() {
       documents.set(report._id, report);
       return publicReport(structuredClone(report));
     },
-    async list({ limit, offset }) {
-      const reports = [...documents.values()].reverse();
+    async list({ limit, offset, userId }) {
+      let reports = [...documents.values()].reverse();
+      if (userId) {
+        reports = reports.filter((item) => String(item.userId) === String(userId));
+      }
       return {
         reports: reports
           .slice(offset, offset + limit)

@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from './Icon.jsx';
 import { api } from '../services/api.js';
 
-export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
-  const [mode, setMode] = useState('login'); // 'login' | 'signup'
+export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAuthSuccess }) {
+  const [mode, setMode] = useState(initialMode); // 'login' | 'signup'
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setError('');
+    }
+  }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
 
@@ -21,11 +28,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       if (mode === 'signup') {
         if (!name.trim()) throw new Error('Please enter your name.');
         const result = await api.signup({ name: name.trim(), email: email.trim(), password });
-        localStorage.setItem('rowready_token', result.token);
+        if (typeof localStorage !== 'undefined')
+          localStorage.setItem('rowready_token', result.token);
         onAuthSuccess(result.user, result.token);
       } else {
         const result = await api.login({ email: email.trim(), password });
-        localStorage.setItem('rowready_token', result.token);
+        if (typeof localStorage !== 'undefined')
+          localStorage.setItem('rowready_token', result.token);
         onAuthSuccess(result.user, result.token);
       }
       onClose();
@@ -128,11 +137,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
           <button type="submit" className="button primary auth-submit" disabled={loading}>
             {loading ? <span className="spinner" /> : null}
-            {loading
-              ? 'Please wait…'
-              : mode === 'login'
-                ? 'Sign in'
-                : 'Create account'}
+            {loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
           </button>
         </form>
 

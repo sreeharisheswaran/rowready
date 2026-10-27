@@ -9,6 +9,7 @@ const schema = z.object({
     .regex(/^mongodb(?:\+srv)?:\/\//)
     .optional(),
   TRUST_PROXY: z.enum(['0', '1']).default('0'),
+  JWT_SECRET: z.string().min(16).default('rowready-jwt-secret-key-development-2026'),
 });
 const result = schema.safeParse(process.env);
 if (!result.success)
@@ -20,4 +21,5 @@ export const config = {
   mongoUri: result.data.MONGODB_URI,
   production: result.data.NODE_ENV === 'production',
   trustProxy: Number(result.data.TRUST_PROXY),
+  jwtSecret: result.data.JWT_SECRET,
 };

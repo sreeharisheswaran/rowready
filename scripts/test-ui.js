@@ -8,6 +8,8 @@ import { build } from 'vite';
 import mongoose from 'mongoose';
 import { createApp } from '../server/src/app.js';
 import { Report } from '../server/src/models/Report.js';
+import { User } from '../server/src/models/User.js';
+import { signToken } from '../server/src/middleware/auth.js';
 import { parseCsv } from '../server/src/services/csv.js';
 
 if (!process.env.TEST_MONGODB_URI) {
@@ -35,7 +37,14 @@ const server = createApp().listen(0, '127.0.0.1');
 await new Promise((resolve) => server.once('listening', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 const dom = new JSDOM('<!doctype html><html><body></body></html>', { url: origin });
-for (const name of ['window', 'document', 'HTMLElement', 'MutationObserver', 'getComputedStyle'])
+for (const name of [
+  'window',
+  'document',
+  'HTMLElement',
+  'MutationObserver',
+  'getComputedStyle',
+  'localStorage',
+])
   globalThis[name] = dom.window[name];
 Object.defineProperty(globalThis, 'navigator', { configurable: true, value: dom.window.navigator });
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -76,6 +85,14 @@ const click = (role, name) => fireEvent.click(screen.getByRole(role, { name }));
 const waitForText = (text) => waitFor(() => assert.ok(screen.getByText(text)), { timeout: 10000 });
 const upload = (file) =>
   fireEvent.change(screen.getByLabelText('Choose CSV file'), { target: { files: [file] } });
+const testUser = await User.create({
+  name: 'Test Analyst',
+  email: `test-ui-${Date.now()}@example.com`,
+  password: 'password123',
+});
+const testToken = signToken(testUser);
+globalThis.localStorage.setItem('rowready_token', testToken);
+
 try {
   render(createElement(App));
   await waitForText('Database connected');
@@ -198,6 +215,7 @@ try {
   globalThis.fetch = nativeFetch;
   dom.window.close();
   for (const id of reportIds) await Report.deleteOne({ _id: id });
+  if (testUser) await User.deleteOne({ _id: testUser._id });
   await new Promise((resolve) => server.close(resolve));
   await mongoose.disconnect();
 }

@@ -6,6 +6,7 @@ import { Reports, ReportDetail } from './pages/Reports.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import { useWorkspace } from './utils/useWorkspace.js';
 import { api } from './services/api.js';
+import { number } from './utils/format.js';
 
 export class ErrorBoundary extends Component {
   state = { failed: false };
@@ -34,6 +35,7 @@ export default function App() {
   const [health, setHealth] = useState({ status: 'checking', database: '' });
   const [user, setUser] = useState(null);
   const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
   const work = useWorkspace();
   const [healthReload, setHealthReload] = useState(0);
 
@@ -45,6 +47,7 @@ export default function App() {
 
   // Restore authenticated user on mount if token exists
   useEffect(() => {
+    if (typeof localStorage === 'undefined') return;
     const token = localStorage.getItem('rowready_token');
     if (!token) return;
     const controller = new AbortController();
@@ -53,8 +56,17 @@ export default function App() {
       .then((res) => {
         if (!controller.signal.aborted) setUser(res.user);
       })
-      .catch(() => {
-        localStorage.removeItem('rowready_token');
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        if (
+          err?.status === 401 ||
+          err?.message?.toLowerCase().includes('token') ||
+          err?.message?.toLowerCase().includes('expired')
+        ) {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('rowready_token');
+          }
+        }
       });
     return () => controller.abort();
   }, []);
@@ -85,7 +97,9 @@ export default function App() {
   }
 
   function handleSignOut() {
-    localStorage.removeItem('rowready_token');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('rowready_token');
+    }
     setUser(null);
     work.clearSession();
     navigate('/');
@@ -115,7 +129,6 @@ export default function App() {
             RowReady<span className="brand-period">.</span>
           </span>
         </a>
-        <span className="sidebar-label">DATA QUALITY WORKBENCH</span>
         <nav aria-label="Main navigation">
           <a
             href="/"
@@ -140,19 +153,23 @@ export default function App() {
         </nav>
         <div className="sidebar-bottom">
           <div className="session-card">
-            <Icon name="shield" size={22} />
-            <strong>A little care for your data.</strong>
-            <p>
-              Small, deliberate changes.
-              <br />A better starting point.
-            </p>
+            <Icon name="file" size={20} />
+            {work.session ? (
+              <>
+                <strong>{work.session.report.filename}</strong>
+                <p>
+                  {number(work.session.profile.rowCount)} rows ·{' '}
+                  {number(work.session.profile.columnCount)} columns
+                </p>
+              </>
+            ) : (
+              <>
+                <strong>Nothing uploaded yet</strong>
+                <p>Add a CSV to see its profile.</p>
+              </>
+            )}
           </div>
-          <div className="sidebar-footer">
-            <span className="tiny-mark">R</span>
-            <span>
-              Made for the details.<small>RowReady · v1.0</small>
-            </span>
-          </div>
+          <div className="sidebar-footer">RowReady v1.0</div>
         </div>
       </aside>
       <div className="main-shell">
@@ -195,14 +212,20 @@ export default function App() {
                 <button
                   type="button"
                   className="auth-btn"
-                  onClick={() => setAuthOpen(true)}
+                  onClick={() => {
+                    setAuthMode('login');
+                    setAuthOpen(true);
+                  }}
                 >
                   Sign in
                 </button>
                 <button
                   type="button"
                   className="auth-btn primary"
-                  onClick={() => setAuthOpen(true)}
+                  onClick={() => {
+                    setAuthMode('signup');
+                    setAuthOpen(true);
+                  }}
                 >
                   Sign up
                 </button>
@@ -230,14 +253,24 @@ export default function App() {
           {path === '/' ? (
             <Workbench work={work} navigate={navigate} />
           ) : path === '/reports' || path === '/reports/' ? (
-            <Reports navigate={navigate} user={user} onOpenAuth={() => setAuthOpen(true)} />
+            <Reports
+              navigate={navigate}
+              user={user}
+              onOpenAuth={() => {
+                setAuthMode('login');
+                setAuthOpen(true);
+              }}
+            />
           ) : match ? (
             <ReportDetail
               key={match[1]}
               id={match[1]}
               navigate={navigate}
               user={user}
-              onOpenAuth={() => setAuthOpen(true)}
+              onOpenAuth={() => {
+                setAuthMode('login');
+                setAuthOpen(true);
+              }}
             />
           ) : (
             <div className="page">
@@ -250,13 +283,14 @@ export default function App() {
           )}
         </main>
         <footer className="main-footer">
-          <span>Clearer data. Confident next steps.</span>
-          <span>CSV in. Clarity out.</span>
+          <span>Datasets stay in your browser session.</span>
+          <span>Reports are saved to MongoDB.</span>
         </footer>
       </div>
 
       <AuthModal
         isOpen={authOpen}
+        initialMode={authMode}
         onClose={() => setAuthOpen(false)}
         onAuthSuccess={(authenticatedUser) => setUser(authenticatedUser)}
       />

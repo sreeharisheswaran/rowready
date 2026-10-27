@@ -67,14 +67,17 @@ export const operationSchema = z
   .max(2)
   .refine((operations) => new Set(operations).size === operations.length);
 
-export function parseRequest(schema, input) {
+export function parseRequest(schema, input, defaultMessage) {
   const result = schema.safeParse(input);
-  if (!result.success)
-    throw new AppError(
-      400,
-      'INVALID_REQUEST',
-      'Invalid request fields or operations. Supported operations are trim and deduplicate, each at most once.',
-    );
+  if (!result.success) {
+    const issue = result.error.issues?.[0];
+    const message =
+      issue && issue.message && !issue.message.startsWith('Invalid input')
+        ? issue.message
+        : defaultMessage ||
+          'Invalid request fields or operations. Supported operations are trim and deduplicate, each at most once.';
+    throw new AppError(400, 'INVALID_REQUEST', message);
+  }
   return result.data;
 }
 

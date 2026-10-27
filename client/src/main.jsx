@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App, { ErrorBoundary } from './App.jsx';
+import '@fontsource-variable/schibsted-grotesk';
 import './styles.css';
 
 createRoot(document.getElementById('root')).render(
