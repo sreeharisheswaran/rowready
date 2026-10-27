@@ -386,5 +386,4 @@ RowReady is original work and is not based on an existing open-source project. I
 - [Submission checklist](docs/SUBMISSION.md)
 - [Project guidelines](END_TERM_PROJECT_GUIDELINES.md)
 
-**Author:** Sreehari Sheswaran
-**Submission deadline:** 27 October 2026, 11:59 PM IST
+**Author:** Sree Harish
