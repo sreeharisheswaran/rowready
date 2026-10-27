@@ -5,13 +5,17 @@ import { Metrics, ColumnProfile, Warnings } from '../components/Profile.jsx';
 import Icon from '../components/Icon.jsx';
 import { dateTime, fileSize, number } from '../utils/format.js';
 
-export function Reports({ navigate, user }) {
+export function Reports({ navigate, user, onOpenAuth }) {
   const [state, setState] = useState({ reports: [], loading: true, error: '', hasMore: false });
-  const [filter, setFilter] = useState('all'); // 'all' | 'mine'
+  const [filter, setFilter] = useState('mine'); // 'mine' | 'all'
   const [offset, setOffset] = useState(0);
   const [reload, setReload] = useState(0);
 
   useEffect(() => {
+    if (!user) {
+      setState({ reports: [], loading: false, error: '', hasMore: false });
+      return;
+    }
     const controller = new AbortController();
     setState((current) => ({ ...current, loading: true, error: '' }));
     api
@@ -24,7 +28,31 @@ export function Reports({ navigate, user }) {
           setState({ reports: [], hasMore: false, loading: false, error: error.message });
       });
     return () => controller.abort();
-  }, [offset, reload, filter]);
+  }, [offset, reload, filter, user]);
+
+  if (!user) {
+    return (
+      <div className="page">
+        <header className="page-heading">
+          <div>
+            <span className="eyebrow">A RECORD OF WHAT YOU FOUND</span>
+            <h1>Saved reports</h1>
+            <p>Your analysis and latest validation findings, ready to revisit.</p>
+          </div>
+        </header>
+        <section className="panel">
+          <Empty icon="shield" title="Sign in to view saved reports">
+            Please sign in to access your saved reports. When you are signed out, your workspace and reports remain private.
+            <div style={{ marginTop: 20 }}>
+              <button type="button" className="button primary" onClick={onOpenAuth}>
+                Sign in to your account
+              </button>
+            </div>
+          </Empty>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -44,30 +72,28 @@ export function Reports({ navigate, user }) {
         </button>
       </header>
 
-      {user && (
-        <div className="reports-filter-tabs">
-          <button
-            type="button"
-            className={`reports-tab ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => {
-              setFilter('all');
-              setOffset(0);
-            }}
-          >
-            All Reports
-          </button>
-          <button
-            type="button"
-            className={`reports-tab ${filter === 'mine' ? 'active' : ''}`}
-            onClick={() => {
-              setFilter('mine');
-              setOffset(0);
-            }}
-          >
-            My Reports ({user.name})
-          </button>
-        </div>
-      )}
+      <div className="reports-filter-tabs">
+        <button
+          type="button"
+          className={`reports-tab ${filter === 'mine' ? 'active' : ''}`}
+          onClick={() => {
+            setFilter('mine');
+            setOffset(0);
+          }}
+        >
+          My Reports ({user.name})
+        </button>
+        <button
+          type="button"
+          className={`reports-tab ${filter === 'all' ? 'active' : ''}`}
+          onClick={() => {
+            setFilter('all');
+            setOffset(0);
+          }}
+        >
+          All Reports
+        </button>
+      </div>
 
       <Notice>
         Reports on this instance are saved to MongoDB. They contain filenames, column names, and
@@ -199,11 +225,15 @@ export function Reports({ navigate, user }) {
   );
 }
 
-export function ReportDetail({ id, navigate }) {
+export function ReportDetail({ id, navigate, user, onOpenAuth }) {
   const [state, setState] = useState({ report: null, loading: true, error: '' });
   const [reload, setReload] = useState(0);
   const [version, setVersion] = useState('latest');
   useEffect(() => {
+    if (!user) {
+      setState({ report: null, loading: false, error: '' });
+      return;
+    }
     const controller = new AbortController();
     setState({ report: null, loading: true, error: '' });
     api
@@ -216,7 +246,35 @@ export function ReportDetail({ id, navigate }) {
           setState({ report: null, loading: false, error: error.message });
       });
     return () => controller.abort();
-  }, [id, reload]);
+  }, [id, reload, user]);
+
+  if (!user) {
+    return (
+      <div className="page">
+        <button className="text-button back-link" onClick={() => navigate('/reports')}>
+          ← All saved reports
+        </button>
+        <header className="page-heading">
+          <div>
+            <span className="eyebrow">SAVED REPORT</span>
+            <h1 className="filename-heading">Report details</h1>
+            <p>Analysis and saved validation information</p>
+          </div>
+        </header>
+        <section className="panel">
+          <Empty icon="shield" title="Sign in to view report details">
+            Please sign in to inspect this report. Report details are private to authenticated users.
+            <div style={{ marginTop: 20 }}>
+              <button type="button" className="button primary" onClick={onOpenAuth}>
+                Sign in to your account
+              </button>
+            </div>
+          </Empty>
+        </section>
+      </div>
+    );
+  }
+
   const report = state.report;
   const profile =
     version === 'latest' && report?.lastValidation

@@ -124,6 +124,12 @@ export function useWorkspace() {
     exportCsv,
     setError,
     dismissError,
+    clearSession: () => {
+      setSession(null);
+      setMessage('');
+      setError('');
+      setTab('overview');
+    },
     newUpload: () => {
       if (lock.current) return;
       if (

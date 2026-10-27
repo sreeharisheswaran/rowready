@@ -75,6 +75,9 @@ export function apiRouter(reportStore, { rateLimitMax = 60 } = {}) {
         .strict(),
       req.query,
     );
+    if (pagination.mine === 'true' && !req.user) {
+      return res.json({ reports: [], total: 0, hasMore: false });
+    }
     const userId = pagination.mine === 'true' && req.user ? req.user.id : undefined;
     res.json(await reportStore.list({ ...pagination, userId }));
   });

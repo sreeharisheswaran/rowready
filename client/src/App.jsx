@@ -87,6 +87,8 @@ export default function App() {
   function handleSignOut() {
     localStorage.removeItem('rowready_token');
     setUser(null);
+    work.clearSession();
+    navigate('/');
   }
 
   const isReports = path.startsWith('/reports');
@@ -228,9 +230,15 @@ export default function App() {
           {path === '/' ? (
             <Workbench work={work} navigate={navigate} />
           ) : path === '/reports' || path === '/reports/' ? (
-            <Reports navigate={navigate} user={user} />
+            <Reports navigate={navigate} user={user} onOpenAuth={() => setAuthOpen(true)} />
           ) : match ? (
-            <ReportDetail key={match[1]} id={match[1]} navigate={navigate} />
+            <ReportDetail
+              key={match[1]}
+              id={match[1]}
+              navigate={navigate}
+              user={user}
+              onOpenAuth={() => setAuthOpen(true)}
+            />
           ) : (
             <div className="page">
               <h1>Page not found</h1>
