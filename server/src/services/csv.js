@@ -193,7 +193,23 @@ export function parseCsv(bytes) {
       'NO_DATA_ROWS',
       'The CSV has no data rows. Include a header followed by at least one record.',
     );
-  return validateDataset({ headers: records[0], rows: records.slice(1) });
+  const seen = new Set();
+  const headers = records[0].map((header, index) => {
+    const trimmed = header.trim();
+    if (trimmed.length === 0) {
+      let name = `Column_${index + 1}`;
+      let count = 1;
+      while (seen.has(name)) {
+        count += 1;
+        name = `Column_${index + 1}_${count}`;
+      }
+      seen.add(name);
+      return name;
+    }
+    seen.add(trimmed);
+    return header;
+  });
+  return validateDataset({ headers, rows: records.slice(1) });
 }
 
 export function serializeCsv(dataset, { spreadsheetSafe = true } = {}) {

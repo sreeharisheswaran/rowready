@@ -180,7 +180,10 @@ test('empty, header-only, binary, bad encoding and excessive input are rejected'
 test('header and structural limits also apply to client-supplied datasets', () => {
   for (const text of ['a,a\nx,y', ' a,a \nx,y'])
     assert.throws(() => parse(text), { code: 'DUPLICATE_HEADERS' });
-  assert.throws(() => parse('a, \nx,y'), { code: 'INVALID_DATASET' });
+  assert.throws(() => validateDataset({ headers: ['a', ' '], rows: [['x', 'y']] }), {
+    code: 'INVALID_DATASET',
+  });
+  assert.deepEqual(parse('a, \nx,y').headers, ['a', 'Column_2']);
   assert.throws(() => validateDataset({ headers: ['a'], rows: [[42]] }), {
     code: 'INVALID_DATASET',
   });
