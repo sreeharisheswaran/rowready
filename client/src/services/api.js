@@ -1,9 +1,14 @@
 async function send(path, options = {}) {
   const timeout = AbortSignal.timeout(30000);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
+  const token = localStorage.getItem('rowready_token');
+  const headers = { ...options.headers };
+  if (token && !headers['Authorization']) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
   let response;
   try {
-    response = await fetch(`/api${path}`, { ...options, signal });
+    response = await fetch(`/api${path}`, { ...options, headers, signal });
   } catch (error) {
     if (options.signal?.aborted) throw error;
     throw new Error(
@@ -29,7 +34,11 @@ const jsonPost = async (path, body) =>
       body: JSON.stringify(body),
     })
   ).json();
+
 export const api = {
+  signup: (data) => jsonPost('/auth/signup', data),
+  login: (data) => jsonPost('/auth/login', data),
+  me: async (signal) => (await send('/auth/me', { signal })).json(),
   analyze: async (file) =>
     (
       await send('/datasets/analyze', {
@@ -41,8 +50,8 @@ export const api = {
   clean: (dataset, operations) => jsonPost('/datasets/clean', { dataset, operations }),
   validate: (dataset, reportId, editToken) =>
     jsonPost('/datasets/validate', { dataset, reportId, editToken }),
-  reports: async (offset = 0, signal) =>
-    (await send(`/reports?limit=12&offset=${offset}`, { signal })).json(),
+  reports: async (offset = 0, signal, mine = false) =>
+    (await send(`/reports?limit=12&offset=${offset}${mine ? '&mine=true' : ''}`, { signal })).json(),
   report: async (id, signal) =>
     (await send(`/reports/${encodeURIComponent(id)}`, { signal })).json(),
   export: async (dataset) => {

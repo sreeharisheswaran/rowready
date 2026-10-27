@@ -48,9 +48,13 @@ const reportSchema = new Schema(
     },
     headerHash: { type: String, required: true, select: false },
     editTokenHash: { type: String, required: true, select: false },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    userEmail: { type: String, default: null },
+    userName: { type: String, default: null },
   },
   { timestamps: true, strict: 'throw', versionKey: false, bufferCommands: false },
 );
 
 reportSchema.index({ createdAt: -1, _id: -1 });
+reportSchema.index({ userId: 1, createdAt: -1 });
 export const Report = mongoose.model('Report', reportSchema);

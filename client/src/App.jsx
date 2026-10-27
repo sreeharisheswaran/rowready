@@ -3,6 +3,7 @@ import Icon from './components/Icon.jsx';
 import { Notice } from './components/Feedback.jsx';
 import Workbench from './pages/Workbench.jsx';
 import { Reports, ReportDetail } from './pages/Reports.jsx';
+import AuthModal from './components/AuthModal.jsx';
 import { useWorkspace } from './utils/useWorkspace.js';
 import { api } from './services/api.js';
 
@@ -31,13 +32,33 @@ export class ErrorBoundary extends Component {
 export default function App() {
   const [path, setPath] = useState(window.location.pathname);
   const [health, setHealth] = useState({ status: 'checking', database: '' });
+  const [user, setUser] = useState(null);
+  const [authOpen, setAuthOpen] = useState(false);
   const work = useWorkspace();
   const [healthReload, setHealthReload] = useState(0);
+
   useEffect(() => {
     const changed = () => setPath(window.location.pathname);
     window.addEventListener('popstate', changed);
     return () => window.removeEventListener('popstate', changed);
   }, []);
+
+  // Restore authenticated user on mount if token exists
+  useEffect(() => {
+    const token = localStorage.getItem('rowready_token');
+    if (!token) return;
+    const controller = new AbortController();
+    api
+      .me(controller.signal)
+      .then((res) => {
+        if (!controller.signal.aborted) setUser(res.user);
+      })
+      .catch(() => {
+        localStorage.removeItem('rowready_token');
+      });
+    return () => controller.abort();
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
     async function check() {
@@ -62,6 +83,12 @@ export default function App() {
     setPath(destination);
     window.scrollTo({ top: 0 });
   }
+
+  function handleSignOut() {
+    localStorage.removeItem('rowready_token');
+    setUser(null);
+  }
+
   const isReports = path.startsWith('/reports');
   const match = path.match(/^\/reports\/([^/]+)\/?$/);
   const nav = (event, destination) => {
@@ -69,6 +96,7 @@ export default function App() {
     event.preventDefault();
     navigate(destination);
   };
+
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main">
@@ -144,6 +172,40 @@ export default function App() {
             <span className="session-indicator">
               {work.session ? 'Active dataset session' : 'No active dataset'}
             </span>
+            <span className="topbar-divider" />
+            {user ? (
+              <div className="topbar-auth">
+                <div className="user-badge" title={user.email}>
+                  <div className="user-avatar">{user.name.charAt(0)}</div>
+                  <span className="user-name">{user.name}</span>
+                </div>
+                <button
+                  type="button"
+                  className="auth-signout-btn"
+                  onClick={handleSignOut}
+                  title="Sign out of account"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="topbar-auth">
+                <button
+                  type="button"
+                  className="auth-btn"
+                  onClick={() => setAuthOpen(true)}
+                >
+                  Sign in
+                </button>
+                <button
+                  type="button"
+                  className="auth-btn primary"
+                  onClick={() => setAuthOpen(true)}
+                >
+                  Sign up
+                </button>
+              </div>
+            )}
           </div>
         </header>
         <main id="main" tabIndex={-1}>
@@ -166,7 +228,7 @@ export default function App() {
           {path === '/' ? (
             <Workbench work={work} navigate={navigate} />
           ) : path === '/reports' || path === '/reports/' ? (
-            <Reports navigate={navigate} />
+            <Reports navigate={navigate} user={user} />
           ) : match ? (
             <ReportDetail key={match[1]} id={match[1]} navigate={navigate} />
           ) : (
@@ -184,6 +246,12 @@ export default function App() {
           <span>CSV in. Clarity out.</span>
         </footer>
       </div>
+
+      <AuthModal
+        isOpen={authOpen}
+        onClose={() => setAuthOpen(false)}
+        onAuthSuccess={(authenticatedUser) => setUser(authenticatedUser)}
+      />
     </div>
   );
 }

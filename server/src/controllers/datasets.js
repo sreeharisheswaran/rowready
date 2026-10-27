@@ -48,6 +48,13 @@ export function datasetControllers(reportStore) {
         original: profile,
         headerHash: hashHeaders(dataset),
         editTokenHash: digest(editToken),
+        ...(req.user
+          ? {
+              userId: req.user.id,
+              userEmail: req.user.email,
+              userName: req.user.name,
+            }
+          : {}),
       });
       res.status(201).json({ dataset, profile, report, editToken });
     },

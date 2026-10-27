@@ -14,6 +14,9 @@ export function publicReport(document) {
     sourceBytes: object.sourceBytes,
     original: object.original,
     lastValidation: object.lastValidation,
+    userId: object.userId ? String(object.userId) : null,
+    userEmail: object.userEmail || null,
+    userName: object.userName || null,
     createdAt: object.createdAt,
     updatedAt: object.updatedAt,
   };
@@ -63,9 +66,10 @@ export function assertEditable(report, editToken, dataset) {
 export const mongoReportStore = {
   ready: () => mongoose.connection.readyState === 1,
   create: (input) => query(async () => publicReport(await Report.create(input))),
-  list: ({ limit, offset }) =>
+  list: ({ limit, offset, userId }) =>
     query(async () => {
-      const documents = await Report.find({})
+      const filter = userId ? { userId } : {};
+      const documents = await Report.find(filter)
         .sort({ createdAt: -1, _id: -1 })
         .skip(offset)
         .limit(limit + 1)

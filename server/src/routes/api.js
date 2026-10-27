@@ -2,6 +2,8 @@ import express from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { z } from 'zod';
 import { datasetControllers, reportIdSchema } from '../controllers/datasets.js';
+import { authControllers } from '../controllers/auth.js';
+import { optionalAuth, requireAuth } from '../middleware/auth.js';
 import { parseRequest } from '../services/dataset.js';
 import { AppError } from '../middleware/errors.js';
 import { LIMITS } from '../../../shared/limits.js';
@@ -36,6 +38,7 @@ export function apiRouter(reportStore, { rateLimitMax = 60 } = {}) {
   const controllers = datasetControllers(reportStore);
   router.post(
     '/datasets/analyze',
+    optionalAuth,
     express.raw({
       type: ['text/csv', 'application/octet-stream'],
       limit: LIMITS.fileBytes,
@@ -55,20 +58,25 @@ export function apiRouter(reportStore, { rateLimitMax = 60 } = {}) {
       );
     next();
   };
+  router.post('/auth/signup', requireJson, authControllers.signup);
+  router.post('/auth/login', requireJson, authControllers.login);
+  router.get('/auth/me', requireAuth, authControllers.me);
   router.post('/datasets/clean', requireJson, controllers.clean);
   router.post('/datasets/validate', requireJson, controllers.validate);
   router.post('/datasets/export', requireJson, controllers.export);
-  router.get('/reports', async (req, res) => {
+  router.get('/reports', optionalAuth, async (req, res) => {
     const pagination = parseRequest(
       z
         .object({
           limit: z.coerce.number().int().min(1).max(50).default(12),
           offset: z.coerce.number().int().min(0).max(1000).default(0),
+          mine: z.enum(['true', 'false']).optional(),
         })
         .strict(),
       req.query,
     );
-    res.json(await reportStore.list(pagination));
+    const userId = pagination.mine === 'true' && req.user ? req.user.id : undefined;
+    res.json(await reportStore.list({ ...pagination, userId }));
   });
   router.get('/reports/:id', async (req, res) => {
     const parsed = reportIdSchema.safeParse(req.params.id);

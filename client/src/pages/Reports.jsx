@@ -5,15 +5,17 @@ import { Metrics, ColumnProfile, Warnings } from '../components/Profile.jsx';
 import Icon from '../components/Icon.jsx';
 import { dateTime, fileSize, number } from '../utils/format.js';
 
-export function Reports({ navigate }) {
+export function Reports({ navigate, user }) {
   const [state, setState] = useState({ reports: [], loading: true, error: '', hasMore: false });
+  const [filter, setFilter] = useState('all'); // 'all' | 'mine'
   const [offset, setOffset] = useState(0);
   const [reload, setReload] = useState(0);
+
   useEffect(() => {
     const controller = new AbortController();
     setState((current) => ({ ...current, loading: true, error: '' }));
     api
-      .reports(offset, controller.signal)
+      .reports(offset, controller.signal, filter === 'mine')
       .then((result) => {
         if (!controller.signal.aborted) setState({ ...result, loading: false, error: '' });
       })
@@ -22,7 +24,8 @@ export function Reports({ navigate }) {
           setState({ reports: [], hasMore: false, loading: false, error: error.message });
       });
     return () => controller.abort();
-  }, [offset, reload]);
+  }, [offset, reload, filter]);
+
   return (
     <div className="page">
       <header className="page-heading">
@@ -40,16 +43,41 @@ export function Reports({ navigate }) {
           Refresh reports
         </button>
       </header>
+
+      {user && (
+        <div className="reports-filter-tabs">
+          <button
+            type="button"
+            className={`reports-tab ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => {
+              setFilter('all');
+              setOffset(0);
+            }}
+          >
+            All Reports
+          </button>
+          <button
+            type="button"
+            className={`reports-tab ${filter === 'mine' ? 'active' : ''}`}
+            onClick={() => {
+              setFilter('mine');
+              setOffset(0);
+            }}
+          >
+            My Reports ({user.name})
+          </button>
+        </div>
+      )}
+
       <Notice>
-        Reports on this instance are shared publicly. They contain filenames, column names, and
-        quality statistics, with no full datasets. Upload the CSV again to begin another cleaning
-        session.
+        Reports on this instance are saved to MongoDB. They contain filenames, column names, and
+        quality statistics, with no full datasets.
       </Notice>
       {state.error && <Notice tone="error">{state.error}</Notice>}
       <section className="panel">
         <div className="panel-heading">
           <div>
-            <h2>Report history</h2>
+            <h2>{filter === 'mine' ? 'My Saved Reports' : 'Report history'}</h2>
             <p>Newest uploads first</p>
           </div>
           <span className="tag">MongoDB storage</span>
@@ -59,13 +87,19 @@ export function Reports({ navigate }) {
         ) : !state.reports.length ? (
           <Empty
             title={
-              state.error ? 'Reports could not be loaded' : 'Your first report starts with a CSV'
+              state.error
+                ? 'Reports could not be loaded'
+                : filter === 'mine'
+                  ? 'No reports uploaded yet'
+                  : 'No saved reports yet'
             }
             icon="history"
           >
             {state.error
               ? 'Check the database connection, then use Refresh reports to retry.'
-              : 'Analyze a dataset in the workbench and its report will appear here.'}
+              : filter === 'mine'
+                ? 'Upload and analyze a CSV while signed in to see your reports here.'
+                : 'Analyze a dataset in the workbench and its report will appear here.'}
           </Empty>
         ) : (
           <div

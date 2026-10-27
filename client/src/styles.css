@@ -764,3 +764,236 @@ main {
     scroll-behavior: auto !important;
   }
 }
+
+/* Auth Modal & Header User Styles */
+.topbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.auth-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  color: var(--dark);
+  transition: all 0.15s ease;
+}
+.auth-btn:hover {
+  background: #f0f3ed;
+  border-color: #cbd5c5;
+}
+.auth-btn.primary {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+.auth-btn.primary:hover {
+  background: var(--dark);
+  border-color: var(--dark);
+}
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 6px;
+  background: #edf3eb;
+  border: 1px solid #d4dfd0;
+  border-radius: 20px;
+}
+.user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dark);
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.auth-signout-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.auth-signout-btn:hover {
+  color: #c53030;
+  background: #fee2e2;
+}
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 40, 30, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: fadeIn 0.15s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.auth-modal {
+  background: var(--paper);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  padding: 28px;
+  box-shadow: 0 20px 40px rgba(18, 40, 30, 0.18), 0 0 0 1px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.auth-brand h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dark);
+}
+.auth-close {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: var(--muted);
+  padding: 4px;
+  cursor: pointer;
+}
+.auth-close:hover {
+  color: var(--dark);
+}
+.auth-subheading {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.auth-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.auth-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dark);
+}
+.auth-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.auth-field input {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fbfcf9;
+  font-size: 14px;
+  color: #25392f;
+  transition: border-color 0.15s;
+}
+.auth-field input:focus {
+  outline: none;
+  border-color: var(--green);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(35, 91, 67, 0.12);
+}
+.auth-submit {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  justify-content: center;
+}
+.auth-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+/* Reports Filter Tabs */
+.reports-filter-tabs {
+  display: flex;
+  gap: 6px;
+  background: #eaefe6;
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  width: fit-content;
+}
+.reports-tab {
+  padding: 6px 16px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.reports-tab:hover {
+  color: var(--dark);
+}
+.reports-tab.active {
+  background: var(--paper);
+  color: var(--dark);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  font-weight: 600;
+}
+
