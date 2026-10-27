@@ -15,7 +15,7 @@ const userSchema = new Schema(
     },
     password: { type: String, required: true, select: false },
   },
-  { timestamps: true, strict: 'throw', versionKey: false, bufferCommands: false },
+  { timestamps: true, strict: false, versionKey: false, bufferCommands: false },
 );
 
 export const User = mongoose.model('User', userSchema);

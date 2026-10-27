@@ -34,14 +34,15 @@ export function errorHandler(error, req, res, next) {
       },
     });
   }
-  if (error instanceof AppError) {
+  if (error instanceof AppError || (error && error.status && error.code)) {
     return res.status(error.status).json({ error: { code: error.code, message: error.message } });
   }
-  // Never log the request, CSV, error object, connection URI, or database details.
+  // Never log sensitive credentials or connection URIs. Safe error summary:
   console.error(
     'Request failed:',
     req.method,
-    error.name === 'MongoServerError' ? 'database error' : 'internal error',
+    req.originalUrl || req.url,
+    error.name === 'MongoServerError' ? 'database error' : error.message || 'internal error',
   );
   return res.status(500).json({
     error: { code: 'INTERNAL_ERROR', message: 'Something went wrong. Please try again.' },

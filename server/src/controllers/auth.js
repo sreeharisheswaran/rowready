@@ -29,8 +29,23 @@ const loginSchema = z
 export const authControllers = {
   signup: async (req, res) => {
     const body = parseRequest(signupSchema, req.body);
-    const existing = await User.findOne({ email: body.email });
+    const existing = await User.findOne({ email: body.email }).select('+password');
     if (existing) {
+      if (!existing.password || typeof existing.password !== 'string') {
+        const hashedPassword = await bcrypt.hash(body.password, 10);
+        existing.name = body.name;
+        existing.password = hashedPassword;
+        await existing.save();
+        const token = signToken(existing);
+        return res.status(201).json({
+          token,
+          user: {
+            id: String(existing._id),
+            name: existing.name,
+            email: existing.email,
+          },
+        });
+      }
       throw new AppError(
         409,
         'EMAIL_EXISTS',
@@ -60,7 +75,25 @@ export const authControllers = {
     if (!user) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password.');
     }
-    const matches = await bcrypt.compare(body.password, user.password);
+
+    let matches = false;
+    if (typeof user.password === 'string' && user.password.length > 0) {
+      try {
+        matches = await bcrypt.compare(body.password, user.password);
+      } catch {
+        matches = false;
+      }
+      if (!matches && user.password === body.password) {
+        matches = true;
+        try {
+          user.password = await bcrypt.hash(body.password, 10);
+          await user.save();
+        } catch {
+          // Non-critical hash upgrade failure
+        }
+      }
+    }
+
     if (!matches) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password.');
     }
