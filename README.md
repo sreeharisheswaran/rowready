@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | **Live app** | https://rowready.onrender.com |
-| **Demo video** | `<PASTE DEMO VIDEO LINK HERE>` |
+| **Demo video** | `https://drive.google.com/file/d/1FiQ0BWv3bLdaVcAC9twiY_LeW0B_zxYx/view?usp=drive_link` |
 | **Source code** | https://github.com/sreeharisheswaran/rowready |
 | **Hosting** | One Node/Express service on Render, connected to MongoDB Atlas |
 
@@ -149,7 +149,6 @@ shared/
   export-policy.js                Browser/server spreadsheet-safety rules
 tests/                            Data, HTTP, SPA and real MongoDB tests
 scripts/                          Development, verification, UI/browser workflows
-docs/                             Deployment, demo, verification, submission notes
 render.yaml                       Single Node service blueprint
 ```
 
@@ -233,8 +232,6 @@ The app is deployed as **one Node service** on Render, backed by **MongoDB Atlas
    - `NODE_ENV` = `production`
    - `TRUST_PROXY` = `1`
 4. Deploy, then open `/api/health`. It should return HTTP 200 with the database marked ready.
-
-A fuller walkthrough is in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## Exact data rules
 
@@ -346,7 +343,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The end-to-end script saves screenshots and a downloaded CSV into the git-ignored `test-results/` folder. It creates sample reports on the selected instance, so run it against a local or test database, not production. See [`docs/VERIFICATION.md`](docs/VERIFICATION.md) for recorded verification results.
+The end-to-end script saves screenshots and a downloaded CSV into the git-ignored `test-results/` folder. It creates sample reports on the selected instance, so run it against a local or test database, not production.
 
 ## Security
 
@@ -380,10 +377,6 @@ RowReady is original work and is not based on an existing open-source project. I
 
 - **Live app:** https://rowready.onrender.com
 - **Demo video:** `<PASTE DEMO VIDEO LINK HERE>`
-- [Demo script and expected sample results](docs/DEMO.md)
-- [Deployment walkthrough](docs/DEPLOYMENT.md)
-- [Verification results](docs/VERIFICATION.md)
-- [Submission checklist](docs/SUBMISSION.md)
 - [Project guidelines](END_TERM_PROJECT_GUIDELINES.md)
 
 **Author:** Sree Harish
