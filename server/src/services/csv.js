@@ -152,7 +152,11 @@ export function parseCsv(bytes) {
       'The CSV is empty. Include a header and at least one data row.',
     );
   if (bytes.length > LIMITS.fileBytes)
-    throw new AppError(413, 'FILE_TOO_LARGE', 'CSV files must be 2 MiB or smaller.');
+    throw new AppError(
+      413,
+      'FILE_TOO_LARGE',
+      `CSV files must be ${Math.round(LIMITS.fileBytes / (1024 * 1024))} MiB or smaller.`,
+    );
 
   const text = decodeCsvBytes(bytes);
   if (!text.trim())
@@ -170,9 +174,17 @@ export function parseCsv(bytes) {
   const parser = dsvFormat(delimiter);
   const records = parser.parseRows(text, (row, index) => {
     if (index > LIMITS.rows)
-      throw new AppError(413, 'TOO_MANY_ROWS', 'CSV files can contain at most 10,000 data rows.');
+      throw new AppError(
+        413,
+        'TOO_MANY_ROWS',
+        `CSV files can contain at most ${LIMITS.rows.toLocaleString('en-US')} data rows.`,
+      );
     if (row.length > LIMITS.columns)
-      throw new AppError(413, 'TOO_MANY_COLUMNS', 'CSV files can contain at most 100 columns.');
+      throw new AppError(
+        413,
+        'TOO_MANY_COLUMNS',
+        `CSV files can contain at most ${LIMITS.columns} columns.`,
+      );
     return row;
   });
   if (records.length < 2)

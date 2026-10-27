@@ -135,10 +135,10 @@ This conservative policy changes the literal exported representation of those va
 
 ## Limits and errors
 
-- Uploaded CSV: **2 MiB** maximum.
-- Dataset: **10,000 rows**, **100 columns**, **250,000 data cells**, **3 MiB** when represented as UTF-8 JSON. All limits apply together; a file below 2 MiB can still exceed a parsed limit.
+- Uploaded CSV: **10 MiB** maximum.
+- Dataset: **50,000 rows**, **200 columns**, **1,000,000 data cells**, **15 MiB** when represented as UTF-8 JSON. All limits apply together; a file below 10 MiB can still exceed a parsed limit.
 - Each cell: **16,384 UTF-16 code units**. Each header: 128. Sanitized stored filename: 120.
-- JSON requests: **4 MiB**, with compressed bodies rejected. Limits are enforced on the server as well as in the upload UI.
+- JSON requests: **16 MiB**, with compressed bodies rejected. Limits are enforced on the server as well as in the upload UI.
 - Previews: first **50 rows**; cells scroll for longer values. Processing and export include all accepted rows.
 - API calls except health: **60 requests per IP per 15 minutes**. HTTP 429 includes rate-limit headers. The limiter is in-process and suited to one service instance.
 - Report lists: 12 by default, at most 50 per request, offsets up to 1,000. Details remain accessible by report ID.

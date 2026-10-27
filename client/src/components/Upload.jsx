@@ -16,7 +16,9 @@ export default function Upload({ onUpload, pending, onError }) {
     if (file.size === 0)
       return onError('This file is empty. Include a header and at least one data row.');
     if (file.size > LIMITS.fileBytes)
-      return onError('This CSV is larger than 2 MiB. Split it into smaller files and try again.');
+      return onError(
+        `This CSV is larger than ${Math.round(LIMITS.fileBytes / (1024 * 1024))} MiB. Split it into smaller files and try again.`,
+      );
     onUpload(file);
   }
   async function sample() {
@@ -81,7 +83,10 @@ export default function Upload({ onUpload, pending, onError }) {
           {pending ? <span className="spinner" /> : <Icon name="upload" size={17} />}
           {pending ? 'Analyzing…' : 'Choose CSV file'}
         </button>
-        <span className="dropzone-limits">UTF-8 / UTF-16 / ANSI · Up to 2 MiB · 10,000 rows · 100 columns</span>
+        <span className="dropzone-limits">
+          UTF-8 / UTF-16 / ANSI · Up to {Math.round(LIMITS.fileBytes / (1024 * 1024))} MiB ·{' '}
+          {LIMITS.rows.toLocaleString('en-US')} rows · {LIMITS.columns} columns
+        </span>
       </div>
       <div className="sample-row">
         <span>Just exploring?</span>

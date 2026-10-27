@@ -55,7 +55,7 @@ export function validateDataset(input) {
     throw new AppError(
       413,
       'DATASET_TOO_LARGE',
-      `The parsed dataset exceeds ${LIMITS.cells.toLocaleString('en-US')} cells or 3 MiB of working data. Split it into smaller files.`,
+      `The parsed dataset exceeds ${LIMITS.cells.toLocaleString('en-US')} cells or ${Math.round(LIMITS.datasetBytes / (1024 * 1024))} MiB of working data. Split it into smaller files.`,
     );
   }
   return dataset;

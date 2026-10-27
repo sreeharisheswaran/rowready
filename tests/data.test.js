@@ -165,7 +165,10 @@ test('empty, header-only, binary, bad encoding and excessive input are rejected'
   assert.throws(
     () =>
       parse(
-        Array.from({ length: 101 }, (_, i) => `c${i}`).join(',') + '\n' + 'x,'.repeat(100) + 'x',
+        Array.from({ length: LIMITS.columns + 1 }, (_, i) => `c${i}`).join(',') +
+          '\n' +
+          'x,'.repeat(LIMITS.columns) +
+          'x',
       ),
     { code: 'TOO_MANY_COLUMNS' },
   );
@@ -184,8 +187,10 @@ test('header and structural limits also apply to client-supplied datasets', () =
   assert.throws(
     () =>
       validateDataset({
-        headers: Array.from({ length: 100 }, (_, i) => `${i}`),
-        rows: Array.from({ length: 2501 }, () => Array(100).fill('')),
+        headers: Array.from({ length: LIMITS.columns }, (_, i) => `${i}`),
+        rows: Array.from({ length: Math.floor(LIMITS.cells / LIMITS.columns) + 1 }, () =>
+          Array(LIMITS.columns).fill(''),
+        ),
       }),
     { code: 'DATASET_TOO_LARGE' },
   );
@@ -193,7 +198,10 @@ test('header and structural limits also apply to client-supplied datasets', () =
     () =>
       validateDataset({
         headers: ['a'],
-        rows: Array.from({ length: 300 }, () => ['x'.repeat(12000)]),
+        rows: Array.from(
+          { length: Math.ceil((LIMITS.datasetBytes + 1000) / 12000) },
+          () => ['x'.repeat(12000)],
+        ),
       }),
     { code: 'DATASET_TOO_LARGE' },
   );
