@@ -14,9 +14,22 @@ export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAu
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
+      setName('');
+      setEmail('');
+      setPassword('');
+      setShowPassword(false);
       setError('');
     }
   }, [isOpen, initialMode]);
+
+  function handleClose() {
+    setName('');
+    setEmail('');
+    setPassword('');
+    setShowPassword(false);
+    setError('');
+    onClose();
+  }
 
   if (!isOpen) return null;
 
@@ -30,11 +43,19 @@ export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAu
         const result = await api.signup({ name: name.trim(), email: email.trim(), password });
         if (typeof localStorage !== 'undefined')
           localStorage.setItem('rowready_token', result.token);
+        setName('');
+        setEmail('');
+        setPassword('');
+        setShowPassword(false);
         onAuthSuccess(result.user, result.token);
       } else {
         const result = await api.login({ email: email.trim(), password });
         if (typeof localStorage !== 'undefined')
           localStorage.setItem('rowready_token', result.token);
+        setName('');
+        setEmail('');
+        setPassword('');
+        setShowPassword(false);
         onAuthSuccess(result.user, result.token);
       }
       onClose();
@@ -47,11 +68,12 @@ export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAu
 
   function toggleMode() {
     setMode((m) => (m === 'login' ? 'signup' : 'login'));
+    setPassword('');
     setError('');
   }
 
   return (
-    <div className="auth-overlay" onClick={onClose} role="dialog" aria-modal="true">
+    <div className="auth-overlay" onClick={handleClose} role="dialog" aria-modal="true">
       <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
         <div className="auth-header">
           <div className="auth-brand">
@@ -62,7 +84,7 @@ export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAu
             </span>
             <h2>{mode === 'login' ? 'Sign in to RowReady' : 'Create an Account'}</h2>
           </div>
-          <button className="auth-close" onClick={onClose} aria-label="Close modal">
+          <button className="auth-close" onClick={handleClose} aria-label="Close modal">
             ✕
           </button>
         </div>
@@ -91,6 +113,7 @@ export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAu
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Alex Analyst"
+                autoComplete="name"
                 disabled={loading}
                 autoFocus
               />
@@ -106,6 +129,7 @@ export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAu
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="alex@example.com"
+              autoComplete="email"
               disabled={loading}
               autoFocus={mode === 'login'}
             />
@@ -131,6 +155,7 @@ export default function AuthModal({ isOpen, initialMode = 'login', onClose, onAu
               onChange={(e) => setPassword(e.target.value)}
               placeholder={mode === 'signup' ? 'At least 6 characters' : 'Enter your password'}
               minLength={mode === 'signup' ? 6 : 1}
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               disabled={loading}
             />
           </div>
