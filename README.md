@@ -376,7 +376,7 @@ RowReady is original work and is not based on an existing open-source project. I
 ## Demo and submission
 
 - **Live app:** https://rowready.onrender.com
-- **Demo video:** `<https://drive.google.com/file/d/1FiQ0BWv3bLdaVcAC9twiY_LeW0B_zxYx/view?usp=drive_link>`
+- **Demo video:** `https://drive.google.com/file/d/1FiQ0BWv3bLdaVcAC9twiY_LeW0B_zxYx/view?usp=drive_link`
 - [Project guidelines](END_TERM_PROJECT_GUIDELINES.md)
 
 **Author:** Sree Harish
