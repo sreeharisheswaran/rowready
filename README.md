@@ -2,12 +2,12 @@
 
 **Understand a CSV before you use it.** RowReady lets you upload a CSV, see exactly what is wrong with it (missing values, duplicate rows, stray whitespace, mixed types), apply explicit cleaning steps, revalidate, and download a spreadsheet-safe file. Findings are saved to MongoDB so a report can be reopened later.
 
-|                 |                                                                |
-| --------------- | -------------------------------------------------------------- |
-| **Live app**    | https://rowready.onrender.com                                  |
-| **Demo video**  | `<PASTE DEMO VIDEO LINK HERE>`                                 |
-| **Source code** | https://github.com/sreeharisheswaran/rowready                  |
-| **Hosting**     | One Node/Express service on Render, connected to MongoDB Atlas |
+| | |
+|---|---|
+| **Live app** | https://rowready.onrender.com |
+| **Demo video** | https://drive.google.com/file/d/1FiQ0BWv3bLdaVcAC9twiY_LeW0B_zxYx/view?usp=drive_link |
+| **Source code** | https://github.com/sreeharisheswaran/rowready |
+| **Hosting** | One Node/Express service on Render, connected to MongoDB Atlas |
 
 > **Note:** the Render free tier sleeps when idle. The first request after a quiet period can take up to a minute to respond. Please wait for it to wake up, then reload.
 
@@ -64,16 +64,16 @@ The application is built around five workflows.
 
 ## Tech stack
 
-| Layer        | Technology                                                                             |
-| ------------ | -------------------------------------------------------------------------------------- |
-| Frontend     | React 19, Vite 8, responsive plain CSS                                                 |
-| Backend      | Node.js 22.12+ (tested on 24.13.1), Express 5                                          |
-| Database     | MongoDB 7+ (Atlas in production) with Mongoose 8                                       |
-| Validation   | Zod 4 for request and data contracts                                                   |
-| CSV handling | `d3-dsv` for parsing and serialization, plus a strict quoting guard                    |
-| Security     | Helmet (headers), express-rate-limit                                                   |
-| Testing      | Node test runner, Supertest, React Testing Library (JSDOM), optional Playwright script |
-| Hosting      | Render (single service via `render.yaml`)                                              |
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite 8, responsive plain CSS |
+| Backend | Node.js 22.12+ (tested on 24.13.1), Express 5 |
+| Database | MongoDB 7+ (Atlas in production) with Mongoose 8 |
+| Validation | Zod 4 for request and data contracts |
+| CSV handling | `d3-dsv` for parsing and serialization, plus a strict quoting guard |
+| Security | Helmet (headers), express-rate-limit |
+| Testing | Node test runner, Supertest, React Testing Library (JSDOM), optional Playwright script |
+| Hosting | Render (single service via `render.yaml`) |
 
 Exact versions of all direct and transitive dependencies are pinned in `package-lock.json`.
 
@@ -149,7 +149,6 @@ shared/
   export-policy.js                Browser/server spreadsheet-safety rules
 tests/                            Data, HTTP, SPA and real MongoDB tests
 scripts/                          Development, verification, UI/browser workflows
-docs/                             Deployment, demo, verification, submission notes
 render.yaml                       Single Node service blueprint
 ```
 
@@ -206,15 +205,15 @@ Open **http://127.0.0.1:3000**. Express serves the built UI and the API together
 
 ## Environment variables
 
-| Variable                        | Required | Description                                                                                                                                                      |
-| ------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MONGODB_URI`                   | Yes      | Server-only MongoDB or Atlas connection string. Include the database name. If missing or failing, health reports degraded and report operations are unavailable. |
-| `PORT`                          | No       | Server port. Defaults to `3000`. The Vite dev proxy reads the same value.                                                                                        |
-| `NODE_ENV`                      | No       | `development`, `test` or `production`. Defaults to `development`. Production enables HTTPS-oriented headers and static serving.                                  |
-| `TRUST_PROXY`                   | No       | `0` locally. Use `1` only behind one trusted reverse proxy, such as Render. Do not use `1` if the server is directly exposed.                                    |
-| `TEST_MONGODB_URI`              | No       | A dedicated test database for the real-persistence and UI integration tests. Tests delete only reports they create.                                              |
-| `E2E_BASE_URL`                  | No       | Browser-test target. Defaults to `http://127.0.0.1:3000`.                                                                                                        |
-| `PLAYWRIGHT_MODULE` / `CDP_URL` | No       | Browser-test overrides. Not needed by the application.                                                                                                           |
+| Variable | Required | Description |
+|---|---|---|
+| `MONGODB_URI` | Yes | Server-only MongoDB or Atlas connection string. Include the database name. If missing or failing, health reports degraded and report operations are unavailable. |
+| `PORT` | No | Server port. Defaults to `3000`. The Vite dev proxy reads the same value. |
+| `NODE_ENV` | No | `development`, `test` or `production`. Defaults to `development`. Production enables HTTPS-oriented headers and static serving. |
+| `TRUST_PROXY` | No | `0` locally. Use `1` only behind one trusted reverse proxy, such as Render. Do not use `1` if the server is directly exposed. |
+| `TEST_MONGODB_URI` | No | A dedicated test database for the real-persistence and UI integration tests. Tests delete only reports they create. |
+| `E2E_BASE_URL` | No | Browser-test target. Defaults to `http://127.0.0.1:3000`. |
+| `PLAYWRIGHT_MODULE` / `CDP_URL` | No | Browser-test overrides. Not needed by the application. |
 
 No frontend secret or environment variable is required for the same-origin deployment. `.env` is git-ignored, and `.env.example` contains no real credentials.
 
@@ -234,8 +233,6 @@ The app is deployed as **one Node service** on Render, backed by **MongoDB Atlas
    - `TRUST_PROXY` = `1`
 4. Deploy, then open `/api/health`. It should return HTTP 200 with the database marked ready.
 
-A fuller walkthrough is in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
-
 ## Exact data rules
 
 These rules are deterministic and covered by tests.
@@ -253,7 +250,6 @@ These rules are deterministic and covered by tests.
 **Operation order.** When both operations are selected, trimming runs first and then deduplication, regardless of request order, because trimming can create new exact duplicates. Trim counts include affected cells in rows that are later removed. Repeating the same operations is idempotent. Reset restores the original browser snapshot and requires revalidation before export.
 
 **Type inference.** Missing values are ignored first. The recognized types are:
-
 - booleans: case-insensitive `true` / `false`
 - numbers: finite decimal or scientific numbers without leading-zero identifiers
 - dates: valid calendar dates in exactly `YYYY-MM-DD`
@@ -287,16 +283,16 @@ This policy changes the literal exported representation of those values, and som
 { "error": { "code": "...", "message": "..." } }
 ```
 
-| Status | Meaning                            |
-| ------ | ---------------------------------- |
-| 400    | Malformed input                    |
-| 403    | Invalid upload capability          |
-| 404    | Missing report or route            |
-| 409    | Incompatible report data           |
-| 413    | A size limit was exceeded          |
-| 415    | Unsupported media type or encoding |
-| 429    | Rate limit reached                 |
-| 503    | Storage unavailable                |
+| Status | Meaning |
+|---|---|
+| 400 | Malformed input |
+| 403 | Invalid upload capability |
+| 404 | Missing report or route |
+| 409 | Incompatible report data |
+| 413 | A size limit was exceeded |
+| 415 | Unsupported media type or encoding |
+| 429 | Rate limit reached |
+| 503 | Storage unavailable |
 
 Production responses never expose stack traces or database details. A successful analyze or validate response means persistence succeeded. The UI shows loading, empty, success and error states, and the app has an error boundary and a connection-status indicator.
 
@@ -347,7 +343,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The end-to-end script saves screenshots and a downloaded CSV into the git-ignored `test-results/` folder. It creates sample reports on the selected instance, so run it against a local or test database, not production. See [`docs/VERIFICATION.md`](docs/VERIFICATION.md) for recorded verification results.
+The end-to-end script saves screenshots and a downloaded CSV into the git-ignored `test-results/` folder. It creates sample reports on the selected instance, so run it against a local or test database, not production.
 
 ## Security
 
@@ -380,11 +376,7 @@ RowReady is original work and is not based on an existing open-source project. I
 ## Demo and submission
 
 - **Live app:** https://rowready.onrender.com
-- **Demo video:** `<PASTE DEMO VIDEO LINK HERE>`
-- [Demo script and expected sample results](docs/DEMO.md)
-- [Deployment walkthrough](docs/DEPLOYMENT.md)
-- [Verification results](docs/VERIFICATION.md)
-- [Submission checklist](docs/SUBMISSION.md)
+- **Demo video:** https://drive.google.com/file/d/1FiQ0BWv3bLdaVcAC9twiY_LeW0B_zxYx/view?usp=drive_link
 - [Project guidelines](END_TERM_PROJECT_GUIDELINES.md)
 
 **Author:** Sree Harish
