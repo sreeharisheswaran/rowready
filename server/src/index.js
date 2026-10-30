@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { createApp } from './app.js';
 import { config } from './config.js';
+import { User } from './models/User.js';
 
-mongoose.set('bufferCommands', false);
 let shuttingDown = false;
 let retryTimer;
 async function connectDatabase() {
@@ -20,6 +20,12 @@ async function connectDatabase() {
       maxPoolSize: 5,
     });
     console.info('MongoDB connected.');
+    try {
+      await User.syncIndexes();
+      console.info('User indexes synchronized.');
+    } catch (idxErr) {
+      console.warn('User index sync notice:', idxErr.message);
+    }
   } catch {
     console.warn('MongoDB connection unavailable. Retrying in 15 seconds.');
     if (!shuttingDown) retryTimer = setTimeout(connectDatabase, 15000);

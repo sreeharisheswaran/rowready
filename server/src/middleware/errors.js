@@ -37,6 +37,26 @@ export function errorHandler(error, req, res, next) {
   if (error instanceof AppError || (error && error.status && error.code)) {
     return res.status(error.status).json({ error: { code: error.code, message: error.message } });
   }
+  if (error.code === 11000) {
+    return res.status(409).json({
+      error: {
+        code: 'EMAIL_EXISTS',
+        message: 'An account with this email already exists. Please log in.',
+      },
+    });
+  }
+  if (error.name === 'ValidationError') {
+    const message = Object.values(error.errors || {})[0]?.message || 'Validation error.';
+    return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message } });
+  }
+  if (error.name === 'MongooseServerSelectionError' || error.name === 'MongoNetworkError') {
+    return res.status(503).json({
+      error: {
+        code: 'DATABASE_UNAVAILABLE',
+        message: 'Database connection is temporarily unavailable. Please try again.',
+      },
+    });
+  }
   // Never log sensitive credentials or connection URIs. Safe error summary:
   console.error(
     'Request failed:',
